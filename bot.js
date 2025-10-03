@@ -4,10 +4,21 @@ import * as cheerio from "cheerio";
 import dotenv from "dotenv";
 dotenv.config();
 
+// ADD: tiny web server for Render
+import express from "express";
+const app = express();
+app.get("/", (_req, res) => res.send("Bot running"));
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => console.log("HTTP server listening on", PORT));
+
 // ---------------------------
 // CONFIG
 // ---------------------------
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
+if (!TELEGRAM_TOKEN) {
+  console.error("Missing TELEGRAM_TOKEN");
+  process.exit(1);
+}
 const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
 
 // Simple HTML escape
@@ -82,7 +93,9 @@ async function checkBusinessStandard() {
   return result;
 }
 
-// ...existing code...
+// ---------------------------
+// Check Navbharat Times
+// ---------------------------
 async function checkNavbharatTimes() {
   const url = "https://dailyepaper.in/navbharat-times-epaper-2025/";
   const today = getTodayDate_DDMonYYYY();
@@ -128,7 +141,10 @@ async function checkNavbharatTimes() {
   }
   return result;
 }
-// ...existing code...
+
+// ---------------------------
+// Check Times of India
+// ---------------------------
 async function checkTimesofIndia() {
   const url = "https://dailyepaper.in/times-of-india-epaper-pdf-aug-2025/";
   const today = getTodayDate_DDMonYYYY();
@@ -173,7 +189,6 @@ async function checkTimesofIndia() {
   }
   return result;
 }
-// ...existing code...
 
 // ---------------------------
 // Telegram Commands
