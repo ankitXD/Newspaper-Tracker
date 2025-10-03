@@ -97,8 +97,9 @@ async function checkBusinessStandard() {
 // Check Navbharat Times
 // ---------------------------
 async function checkNavbharatTimes() {
-  const url = "https://dailyepaper.in/navbharat-times-epaper-2025/";
-  const today = getTodayDate_DDMonYYYY();
+  const url =
+    "https://epaperwave.com/navbharat-times-epaper-delhi-pdf-download/";
+  const today = getTodayDate_DDMMYYYY();
   let result = `📰 <b>Navbharat Times</b>\nChecking for: ${esc(today)}\n`;
 
   try {
@@ -132,7 +133,7 @@ async function checkNavbharatTimes() {
     const chosen = lastDriveLink || lastLink;
 
     if (chosen) {
-      result += `✅ Found epaper:\n👉 ${esc(chosen)}`;
+      result += `✅ Found Epaper:\n👉 ${esc(chosen)}`;
     } else {
       result += `❌ No link found for ${esc(today)}`;
     }
@@ -146,8 +147,8 @@ async function checkNavbharatTimes() {
 // Check Times of India
 // ---------------------------
 async function checkTimesofIndia() {
-  const url = "https://dailyepaper.in/times-of-india-epaper-pdf-aug-2025/";
-  const today = getTodayDate_DDMonYYYY();
+  const url = "https://epaperwave.com/the-times-of-india-epaper-pdf-download/";
+  const today = getTodayDate_DDMMYYYY();
   let result = `📰 <b>Times of India</b>\nChecking for: ${esc(today)}\n`;
 
   try {
@@ -180,7 +181,7 @@ async function checkTimesofIndia() {
     const chosen = lastDriveLink || lastLink;
 
     if (chosen) {
-      result += `✅ Found epaper:\n👉 ${esc(chosen)}`;
+      result += `✅ Found Epaper:\n👉 ${esc(chosen)}`;
     } else {
       result += `❌ No link found for ${esc(today)}`;
     }
