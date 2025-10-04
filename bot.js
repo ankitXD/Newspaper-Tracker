@@ -2,19 +2,47 @@ import TelegramBot from "node-telegram-bot-api";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import dotenv from "dotenv";
+import express from "express";
+
 dotenv.config();
 
 // ---------------------------
 // CONFIG
 // ---------------------------
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
-if (!TELEGRAM_TOKEN) {
-  console.error("Missing TELEGRAM_TOKEN");
+const APP_URL = process.env.APP_URL; // e.g. https://your-app.herokuapp.com
+if (!TELEGRAM_TOKEN || !APP_URL) {
+  console.error("Missing TELEGRAM_TOKEN or APP_URL");
   process.exit(1);
 }
-const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
 
+// Init bot in webhook mode
+const bot = new TelegramBot(TELEGRAM_TOKEN, { webHook: true });
+bot.setWebHook(`${APP_URL}/bot${TELEGRAM_TOKEN}`);
+
+// Express setup
+const app = express();
+app.use(express.json());
+
+// Route for Telegram webhook
+app.post(`/bot${TELEGRAM_TOKEN}`, (req, res) => {
+  bot.processUpdate(req.body);
+  res.sendStatus(200);
+});
+
+// Health check endpoint
+app.get("/", (req, res) => {
+  res.send("✅ Newspaper Bot is running fine!");
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log("Bot server running on port", PORT);
+});
+
+// ---------------------------
 // Simple HTML escape
+// ---------------------------
 function esc(str = "") {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
@@ -102,7 +130,6 @@ async function checkNavbharatTimes() {
     let lastLink = null;
     let lastDriveLink = null;
 
-    // Scan all candidate nodes once
     $("p, li, div").each((_, el) => {
       const text = $(el).text().trim();
       if (!text.includes(today)) return;
@@ -116,7 +143,7 @@ async function checkNavbharatTimes() {
             if (link) {
               lastLink = link;
               if (link.includes("drive.google.com")) {
-                lastDriveLink = link; // keep updating so we end with the last drive link
+                lastDriveLink = link;
               }
             }
           }
@@ -190,7 +217,7 @@ async function checkTimesofIndia() {
 bot.onText(/\/start/, (msg) => {
   bot.sendMessage(
     msg.chat.id,
-    "👋 Hi! I’m your Vibe Coded Newspaper Tracker Bot.\n \n Click /check to see today’s papers.\n \n Click /health to see bot status."
+    "👋 Hi! I’m your Vibe Coded Newspaper Tracker Bot.\n\nClick /check to see today’s papers.\n\nClick /health to see bot status."
   );
 });
 
@@ -200,15 +227,15 @@ bot.onText(/\/health/, (msg) => {
 
 bot.onText(/\/check/, async (msg) => {
   const chatId = msg.chat.id;
-  bot.sendMessage(chatId, "⏳  Check Karne De");
+  bot.sendMessage(chatId, "⏳Ruk Check Karne De");
 
-  const [bs, nb, toi] = await Promise.all([
+  const [nb, bs, toi] = await Promise.all([
     checkNavbharatTimes(),
     checkBusinessStandard(),
     checkTimesofIndia(),
   ]);
 
-  bot.sendMessage(chatId, `${bs}\n\n${nb}\n\n${toi}`, {
+  bot.sendMessage(chatId, `${nb}\n\n${bs}\n\n${toi}`, {
     parse_mode: "HTML",
     disable_web_page_preview: true,
   });
