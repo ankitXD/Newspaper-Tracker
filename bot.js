@@ -2,7 +2,6 @@ import TelegramBot from "node-telegram-bot-api";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import dotenv from "dotenv";
-import express from "express";
 
 if (process.env.NODE_ENV !== "production") {
   dotenv.config();
@@ -11,31 +10,51 @@ if (process.env.NODE_ENV !== "production") {
 // ---------------------------
 // CONFIG
 // ---------------------------
-const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
+const PROD_TOKEN = process.env.TELEGRAM_TOKEN;
+const LOCAL_TOKEN = process.env.LOCAL_TELEGRAM_TOKEN; // set this in .env for local testing
 const APP_URL = process.env.APP_URL; // e.g. https://your-app.herokuapp.com
-if (!TELEGRAM_TOKEN || !APP_URL) {
-  console.error("Missing TELEGRAM_TOKEN or APP_URL");
+const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
+const IS_PROD_WEBHOOK =
+  process.env.NODE_ENV === "production" && APP_URL && WEBHOOK_SECRET;
+
+// choose token: in local (non-prod) prefer LOCAL_TOKEN if provided
+const TELEGRAM_TOKEN = IS_PROD_WEBHOOK ? PROD_TOKEN : LOCAL_TOKEN || PROD_TOKEN;
+
+if (!TELEGRAM_TOKEN) {
+  console.error(
+    "Missing TELEGRAM_TOKEN (or LOCAL_TELEGRAM_TOKEN for local testing)"
+  );
   process.exit(1);
 }
 
-// Init bot in webhook mode
-const bot = new TelegramBot(TELEGRAM_TOKEN, { webHook: true });
-
-// Use the secret path instead of token in the URL
-bot.setWebHook(`${APP_URL}/${process.env.WEBHOOK_SECRET}`);
-
-// Express setup
+import express from "express";
 const app = express();
 app.use(express.json());
 
-// Route for Telegram webhook
-app.post(`/${process.env.WEBHOOK_SECRET}`, (req, res) => {
-  bot.processUpdate(req.body);
-  res.sendStatus(200);
-});
+// create bot in the appropriate mode
+let bot;
+if (IS_PROD_WEBHOOK) {
+  // webhook mode for production
+  bot = new TelegramBot(TELEGRAM_TOKEN, { webHook: true });
+  // Use the secret path instead of token in the URL
+  bot.setWebHook(`${APP_URL}/${WEBHOOK_SECRET}`);
+
+  // Route for Telegram webhook
+  app.post(`/${WEBHOOK_SECRET}`, (req, res) => {
+    bot.processUpdate(req.body);
+    res.sendStatus(200);
+  });
+
+  console.log("Running in production webhook mode");
+} else {
+  // polling mode for local testing / development
+  bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
+  console.log("Running in polling mode (local).");
+  // you can still keep the webhook route if you want, but it's not required for polling
+}
 
 // Health check endpoint
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.send("✅ Newspaper Bot is running fine!");
 });
 
