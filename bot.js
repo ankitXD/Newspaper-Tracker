@@ -52,19 +52,45 @@ function esc(str = "") {
 }
 
 // ---------------------------
-// Utils for dates
+// Utils for dates (use IST by default)
 // ---------------------------
+const DEFAULT_TZ = process.env.TIMEZONE || "Asia/Kolkata";
+
+function _datePartsInTZ(timeZone = DEFAULT_TZ) {
+  const now = new Date();
+  const fmt = new Intl.DateTimeFormat("en-GB", {
+    timeZone,
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+  const parts = fmt.formatToParts(now);
+  const day = parts.find((p) => p.type === "day").value;
+  const month = parts.find((p) => p.type === "month").value;
+  const year = parts.find((p) => p.type === "year").value;
+  return { day, month, year, monthIndex: Number(month) - 1 };
+}
+
 function getTodayDate_DDMMYYYY() {
-  const d = new Date();
-  const day = String(d.getDate()).padStart(2, "0");
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const year = d.getFullYear();
+  const { day, month, year } = _datePartsInTZ();
   return `${day}-${month}-${year}`;
 }
 
-function getTodayDate_DDMonYYYY() {
-  const d = new Date();
-  const day = String(d.getDate()).padStart(2, "0");
+// human-readable date + time helpers (uses DEFAULT_TZ)
+function getCurrentTime_HHMMSS() {
+  const now = new Date();
+  const fmt = new Intl.DateTimeFormat("en-GB", {
+    timeZone: DEFAULT_TZ,
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+  return fmt.format(now);
+}
+
+function getCurrentDate_Readable() {
+  const { day, monthIndex, year } = _datePartsInTZ();
   const months = [
     "Jan",
     "Feb",
@@ -79,7 +105,7 @@ function getTodayDate_DDMonYYYY() {
     "Nov",
     "Dec",
   ];
-  return `${day} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  return `${day} ${months[monthIndex]} ${year}`;
 }
 
 // ---------------------------
@@ -221,12 +247,22 @@ async function checkTimesofIndia() {
 bot.onText(/\/start/, (msg) => {
   bot.sendMessage(
     msg.chat.id,
-    "👋 Hi! I’m your Vibe Coded Newspaper Tracker Bot.\n\nClick /check to see today’s papers.\n\nClick /health to see bot status."
+    `👋 Welcome to Bot!
+
+/check to see today's papers.
+
+/date Today's Date.
+
+/time Current Time 
+ 
+/health to see bot status.
+
+`
   );
 });
 
 bot.onText(/\/health/, (msg) => {
-  bot.sendMessage(msg.chat.id, "The service is running smoothly. ✅");
+  bot.sendMessage(msg.chat.id, "✅ The service is running smoothly.");
 });
 
 bot.onText(/\/check/, async (msg) => {
@@ -243,4 +279,19 @@ bot.onText(/\/check/, async (msg) => {
     parse_mode: "HTML",
     disable_web_page_preview: true,
   });
+});
+
+// ---------------------------
+// Time / Date commands
+// ---------------------------
+bot.onText(/\/date/, (msg) => {
+  const chatId = msg.chat.id;
+  const dateReadable = getCurrentDate_Readable();
+  bot.sendMessage(chatId, `📅 Date: ${dateReadable}`);
+});
+
+bot.onText(/\/time/, (msg) => {
+  const chatId = msg.chat.id;
+  const time = getCurrentTime_HHMMSS();
+  bot.sendMessage(chatId, `⏰ Time: ${time}`);
 });
