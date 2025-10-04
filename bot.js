@@ -4,13 +4,6 @@ import * as cheerio from "cheerio";
 import dotenv from "dotenv";
 dotenv.config();
 
-// ADD: tiny web server for Render
-import express from "express";
-const app = express();
-app.get("/", (_req, res) => res.send("Bot running"));
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log("HTTP server listening on", PORT));
-
 // ---------------------------
 // CONFIG
 // ---------------------------
@@ -207,7 +200,7 @@ bot.onText(/\/health/, (msg) => {
 
 bot.onText(/\/check/, async (msg) => {
   const chatId = msg.chat.id;
-  bot.sendMessage(chatId, "⏳ Ruk Check Karne De");
+  bot.sendMessage(chatId, "⏳  Check Karne De");
 
   const [bs, nb, toi] = await Promise.all([
     checkNavbharatTimes(),
