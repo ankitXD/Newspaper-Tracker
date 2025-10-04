@@ -213,3 +213,15 @@ bot.onText(/\/check/, async (msg) => {
     disable_web_page_preview: true,
   });
 });
+
+bot.onText(/\/dusmnpalty/, (msg) => {
+  bot.sendMessage(
+    msg.chat.id,
+    "Unse bade madarchod meine aaj tak nahi dekhe. 🤣"
+  );
+});
+
+bot.onText(/\/protienPrice/, (msg) => {
+  const chatId = msg.chat.id;
+  bot.sendMessage(chatId, "⏳ Kya Re Bhikmangya Aagaya Check Karne");
+});
