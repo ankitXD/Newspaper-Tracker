@@ -20,14 +20,16 @@ if (!TELEGRAM_TOKEN || !APP_URL) {
 
 // Init bot in webhook mode
 const bot = new TelegramBot(TELEGRAM_TOKEN, { webHook: true });
-bot.setWebHook(`${APP_URL}/bot${TELEGRAM_TOKEN}`);
+
+// Use the secret path instead of token in the URL
+bot.setWebHook(`${APP_URL}/${process.env.WEBHOOK_SECRET}`);
 
 // Express setup
 const app = express();
 app.use(express.json());
 
 // Route for Telegram webhook
-app.post(`/bot${TELEGRAM_TOKEN}`, (req, res) => {
+app.post(`/${process.env.WEBHOOK_SECRET}`, (req, res) => {
   bot.processUpdate(req.body);
   res.sendStatus(200);
 });
