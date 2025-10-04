@@ -202,7 +202,7 @@ bot.onText(/\/start/, (msg) => {
 });
 
 bot.onText(/\/health/, (msg) => {
-  bot.sendMessage(msg.chat.id, "The Bot Is Running Perfectly");
+  bot.sendMessage(msg.chat.id, "The service is running smoothly. ✅");
 });
 
 bot.onText(/\/check/, async (msg) => {
