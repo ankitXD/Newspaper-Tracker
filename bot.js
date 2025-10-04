@@ -4,7 +4,9 @@ import * as cheerio from "cheerio";
 import dotenv from "dotenv";
 import express from "express";
 
-dotenv.config();
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config();
+}
 
 // ---------------------------
 // CONFIG
