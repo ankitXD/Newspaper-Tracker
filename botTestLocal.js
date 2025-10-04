@@ -7,7 +7,7 @@ dotenv.config();
 // ---------------------------
 // CONFIG
 // ---------------------------
-const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
+const TELEGRAM_TOKEN = process.env.LOCAL_TELEGRAM_TOKEN;
 if (!TELEGRAM_TOKEN) {
   console.error("Missing TELEGRAM_TOKEN");
   process.exit(1);
