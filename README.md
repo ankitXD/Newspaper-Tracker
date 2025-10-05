@@ -20,8 +20,10 @@ Lightweight Telegram bot that scrapes daily newspaper e‑paper links and return
 Open a terminal in the project folder (Windows):
 
 ```
-cd d:\Study\Projects\Newspaper-Tracker
+git clone https://github.com/ankitXD/Newspaper-Tracker
+cd Newspaper-Tracker
 npm install
+node --watch bot.js
 ```
 
 ## Environment (.env)
