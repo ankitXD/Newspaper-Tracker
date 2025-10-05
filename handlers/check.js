@@ -5,7 +5,7 @@ import checkTimesofIndia from "../scrapers/timesOfIndia.js";
 export default function registerCheck(bot) {
   bot.onText(/^\/check$/, async (msg) => {
     const chatId = msg.chat.id;
-    await bot.sendMessage(chatId, "⏳ Checking newspapers...");
+    await bot.sendMessage(chatId, "⏳ Ruk Dhundne De...");
     try {
       const [nb, bs, toi] = await Promise.all([
         checkNavbharatTimes(),
@@ -19,5 +19,6 @@ export default function registerCheck(bot) {
     } catch (err) {
       await bot.sendMessage(chatId, `⚠️ Error: ${err.message}`);
     }
+    await bot.sendMessage(chatId, "✅ Le Padhle Ab");
   });
 }
