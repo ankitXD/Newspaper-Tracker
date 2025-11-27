@@ -15,19 +15,34 @@ export default async function checkNavbharatTimes() {
     let lastLink = null;
     let lastDriveLink = null;
 
+    // Site format: "27-11-2025: [Delhi](link) | [Other Editions](link)"
+    // or "27-11-2025: [Click Here to Download](link)"
     $("p, li, div").each((_, el) => {
       const text = $(el).text().trim();
+      // Check if this element contains today's date
       if (!text.includes(today)) return;
+
       $(el)
         .find("a")
         .each((_, a) => {
+          const link = $(a).attr("href");
           const aText = $(a).text().toLowerCase();
-          if (aText.includes("download")) {
-            const link = $(a).attr("href");
-            if (link) {
-              lastLink = link;
-              if (link.includes("drive.google.com")) lastDriveLink = link;
-            }
+          if (!link) return;
+
+          // Accept links that are:
+          // - Google Drive links
+          // - Links with text "delhi", "download", or "click here"
+          // - Skip telegram links (Other Editions)
+          if (link.includes("t.me")) return;
+
+          if (
+            link.includes("drive.google.com") ||
+            aText.includes("download") ||
+            aText.includes("delhi") ||
+            aText.includes("click here")
+          ) {
+            lastLink = link;
+            if (link.includes("drive.google.com")) lastDriveLink = link;
           }
         });
     });
